@@ -19,9 +19,11 @@ RUN bundle install
 # Copy the main application
 ADD ./blog/ ./
 
-# Execute the tests
+# Prepare test database
 RUN ["rails", "db:migrate", "RAILS_ENV=test"]
-CMD ["bundle", "exec", "rspec"]
+
+# Execute tests by default:
+# CMD ["bundle", "exec", "rspec"]
 
 # Alternatively: Run the application
 # EXPOSE 3000

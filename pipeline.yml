@@ -4,60 +4,33 @@ resources:
     type: git
     source:
       uri: "https://github.com/dani-sc/fhs02-continuous-delivery-concourse.git"
+      branch: master
+  - name: 3m
+    type: time
+    source: { interval: 5m }
 
 jobs:
-- name: commit-stage
+- name: integration-tests
+  build_logs_to_retain: 10
   plan:
-  - get: git-repository
+  - get: 3m
     trigger: true
-  - task: run-tests
+  - task: run-integration-tests
     config:
       platform: linux
+
+      image_resource:
+        type: docker-image
+        source: { repository: ruby, tag: 2.4.1 }
 
       inputs:
       - name: git-repository
 
-      image_resource:
-        type: docker-image
-        source: { repository: ruby, tag: 2.4.0-alpine }
-
       run:
         path: sh
         dir: git-repository
         args:
           - -exc
           - |
-            bundle install
-            rspec
-- name: deploy-stage
-  serial: true
-  plan:
-  - get: git-repository
-    trigger: true
-    passed: [commit-stage]
-  - task: deploy-heroku
-    params:
-      HEROKU_EMAIL: {{heroku_email}}
-      HEROKU_TOKEN: {{heroku_token}}
-    config:
-      platform: linux
-
-      image_resource:
-        type: docker-image
-        source: { repository: concourse/bosh-cli }
-
-      inputs:
-        - name: git-repository
-
-      run:
-        path: sh
-        dir: git-repository
-        args:
-          - -exc
-          - |
-            cat > /root/.netrc <<EOF
-            machine git.heroku.com
-              login $HEROKU_EMAIL
-              password $HEROKU_TOKEN
-            EOF
-            git push https://git.heroku.com/fh-phone-normalizer.git master:refs/heads/master
+            cd blog
+            bundle exec rspec

@@ -12,3 +12,9 @@ Remove container: `sudo docker rm d_01-rails-a`
 
 ### Concourse
 Follow instructions on [https://concourse.ci/docker-repository.html](https://concourse.ci/docker-repository.html). The docker-compose.yml has already been created. However, you should **set the external IP**!
+
+Install fly: `install path/to/fly /usr/local/bin/fly`
+
+Save target: `fly -t d_01 login -c http://77.119.129.2` where `77.119.129.2` should be your external IP.
+
+Login with username `concourse` and password `changeme`.
