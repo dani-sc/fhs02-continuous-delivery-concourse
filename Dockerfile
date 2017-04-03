@@ -1,18 +1,29 @@
-FROM ruby:2.4.0-alpine
+FROM ruby:2.4.1
+RUN apt-get update -qq && apt-get install -y build-essential libpq-dev nodejs
 
-RUN mkdir /myapp
-WORKDIR /myapp
+# Make /blog the main working directory
+RUN mkdir /blog
+WORKDIR /blog
 
-ADD Gemfile /myapp/Gemfile
-ADD Gemfile.lock /myapp/Gemfile.lock
+# Copy the Gemfiles. This is a separate step so the dependencies 
+# will be cached unless changes to one of those two files 
+# are made.
+COPY ./blog/Gemfile ./
+COPY ./blog/Gemfile.lock ./
 
 # COPY Gemfile /usr/src/app
 # COPY Gemfile.lock /usr/src/app
 
 RUN bundle install
 
-ADD . /myapp
+# Copy the main application
+ADD ./blog/ ./
 
-# COPY . /usr/src/app
+# Execute the tests
+RUN ["rails", "db:migrate", "RAILS_ENV=test"]
+CMD ["bundle", "exec", "rspec"]
 
-# CMD ["bundle", "exec", "ruby", "myapp.rb", "-o", "0.0.0.0"]
+# Alternatively: Run the application
+# EXPOSE 3000
+# RUN ["rails", "db:migrate", "RAILS_ENV=development"]
+# CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
