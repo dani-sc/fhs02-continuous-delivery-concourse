@@ -5,15 +5,16 @@ resources:
     source:
       uri: "https://github.com/dani-sc/fhs02-continuous-delivery-concourse.git"
       branch: master
-  - name: 3m
-    type: time
-    source: { interval: 5m }
+  # - name: 3m
+  #   type: time
+  #   source: { interval: 5m }
 
 jobs:
 - name: integration-tests
   build_logs_to_retain: 10
   plan:
-  - get: 3m
+  # - get: 3m
+  - get: git-repository
     trigger: true
   - task: run-integration-tests
     config:
@@ -21,16 +22,18 @@ jobs:
 
       image_resource:
         type: docker-image
-        source: { repository: ruby, tag: 2.4.1 }
+        source:
+          repository: 172.17.0.1:5000/daniel/01-rails-a
+          tag: "latest"
+          insecure_registries: ["172.17.0.1:5000"]
 
       inputs:
       - name: git-repository
 
       run:
         path: sh
-        dir: git-repository
+        dir: blog
         args:
           - -exc
           - |
-            cd blog
             bundle exec rspec
