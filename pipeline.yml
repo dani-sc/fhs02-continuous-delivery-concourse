@@ -5,31 +5,33 @@ resources:
     source:
       uri: "https://github.com/dani-sc/fhs02-continuous-delivery-concourse.git"
       branch: master
+  
+  - name: docker-image-blog
+    type: docker-image
+    source:
+      repository: danisc/fhs02-t01-blog
+      username: {{dockerhub-username}}
+      password: {{dockerhub-password}}
   # - name: 3m
   #   type: time
   #   source: { interval: 5m }
 
 jobs:
+- name: build-blog-image
+  plan:
+  - get: git-repository
+  - put: docker-image-blog
+    params: {build: git-repository}
+
 - name: integration-tests
   build_logs_to_retain: 10
   plan:
-  # - get: 3m
-  - get: git-repository
-    trigger: true
-  - task: run-integration-tests
+  - get: docker-image-blog
+    passed: [build-blog-image]
+  - task: use-task-image
+    image: docker-image-blog
     config:
       platform: linux
-
-      image_resource:
-        type: docker-image
-        source:
-          repository: 172.17.0.1:5000/daniel/01-rails-a
-          tag: "latest"
-          insecure_registries: ["172.17.0.1:5000"]
-
-      inputs:
-      - name: git-repository
-
       run:
         path: sh
         dir: blog
@@ -37,3 +39,28 @@ jobs:
           - -exc
           - |
             bundle exec rspec
+
+  # - get: 3m
+  # - get: git-repository
+  #   trigger: true
+  # - task: run-integration-tests
+  #   config:
+  #     platform: linux
+
+  #     image_resource:
+  #       type: docker-image
+  #       source:
+  #         repository: 172.17.0.1:5000/daniel/01-rails-a
+  #         tag: "latest"
+  #         insecure_registries: ["172.17.0.1:5000"]
+
+  #     inputs:
+  #     - name: git-repository
+
+  #     run:
+  #       path: sh
+  #       dir: blog
+  #       args:
+  #         - -exc
+  #         - |
+  #           bundle exec rspec
