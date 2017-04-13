@@ -34,10 +34,10 @@ jobs:
       platform: linux
       run:
         path: sh
-        dir: blog
         args:
           - -exc
           - |
+            cd /blog
             bundle exec rspec
 
   # - get: 3m
