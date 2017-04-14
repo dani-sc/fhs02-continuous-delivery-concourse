@@ -1,10 +1,18 @@
 ---
 resources:
-  - name: git-repository
+  - name: git-repository-master
     type: git
     source:
       uri: "https://github.com/dani-sc/fhs02-continuous-delivery-concourse.git"
       branch: master
+
+  - name: gitrepositorybrakeman
+    type: git
+    source:
+      uri: "https://github.com/dani-sc/fhs02-continuous-delivery-concourse.git"
+      branch: brakeman
+      username: {{github-username}}
+      password: {{github-password}}
   
   - name: docker-image-blog
     type: docker-image
@@ -16,10 +24,10 @@ resources:
 jobs:
 - name: build-blog-image
   plan:
-  - get: git-repository
+  - get: git-repository-master
     trigger: true
   - put: docker-image-blog
-    params: {build: git-repository}
+    params: {build: git-repository-master}
 
 - name: integration-tests
   build_logs_to_retain: 10
@@ -38,3 +46,52 @@ jobs:
           - |
             cd /blog
             bundle exec rspec
+
+- name: security-checks
+  build_logs_to_retain: 10
+  plan:
+  - get: docker-image-blog
+    trigger: true
+    passed: [integration-tests]
+  - get: gitrepositorybrakeman
+  - task: run-brakeman
+    image: docker-image-blog
+    config:
+      platform: linux
+      inputs:
+        - name: gitrepositorybrakeman
+      outputs:
+        - name: git-repository-brakeman-modified
+      run:
+        path: sh
+        args:
+          - -exc
+          - |
+            cd /blog
+            git clone gitrepositorybrakeman git-repository-brakeman-modified
+            # git clone https://github.com/dani-sc/fhs02-continuous-delivery-concourse.git git-repository-brakeman-modified
+            brakeman -z -o brakeman_output.json
+            cp brakeman_output.json git-repository-brakeman-modified/brakeman_output.json
+            cd git-repository-brakeman-modified
+            git checkout brakeman
+            git add .
+            git config --global user.email "daniel.scheffkn@gmail.com"
+            git config --global  user.name "Daniel Scheffknecht"
+            git status
+            pwd
+            ls
+            git commit -m "[ci skip] Update brakeman output file"
+            # git clone https://github.com/dani-sc/fhs02-continuous-delivery-concourse.git /tmp/build/put/git-repository-brakeman-modified
+            # brakeman -z -o brakeman_output.json
+            # cp brakeman_output.json /tmp/build/put/git-repository-brakeman-modified/brakeman_output.json
+            # cd /tmp/build/put/git-repository-brakeman-modified
+            # git checkout brakeman
+            # git add .
+            # git config --global user.email "daniel.scheffkn@gmail.com"
+            # git config --global  user.name "Daniel Scheffknecht"
+            # git status
+            # pwd
+            # ls
+            # git commit -m "[ci skip] Update brakeman output file"
+  - put: gitrepositorybrakeman
+    params: {repository: git-repository-brakeman-modified}
