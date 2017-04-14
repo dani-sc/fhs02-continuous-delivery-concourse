@@ -71,7 +71,6 @@ jobs:
             brakeman /blog -z -o brakeman_output.json --compare git-repository-brakeman-modified/brakeman_output.json
             cp brakeman_output.json git-repository-brakeman-modified/brakeman_output.json
             cd git-repository-brakeman-modified
-            git checkout brakeman
             git add .
             git config --global user.email "daniel.scheffkn@gmail.com"
             git config --global  user.name "Daniel Scheffknecht"
