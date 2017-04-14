@@ -10,8 +10,12 @@ Stop container: `sudo docker stop d_01-rails-a`
 
 Remove container: `sudo docker rm d_01-rails-a`
 
-Run integration tests manually: `sudo docker ru
-n --name my-test-1 danisc/fhs02-t01-blog bundle exec rspec`
+Pull container from dockerhub: 
+
+Run integration tests manually: `sudo docker run --name my-test-1 danisc/fhs02-t01-blog bundle exec rspec`
+
+Run brakeman manually: `sudo docker run --name my-test-1 danisc/fhs02-t01-blog brakeman -z -o brakeman_output.json`
+By adding the `-z`, Brakeman will return an error code when warnings were found.
 
 ### Concourse
 Follow instructions on [https://concourse.ci/docker-repository.html](https://concourse.ci/docker-repository.html). The docker-compose.yml has already been created. However, you should **set the external IP**!
