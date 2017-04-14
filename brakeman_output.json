@@ -3,9 +3,9 @@
     "app_path": "/blog",
     "rails_version": "5.0.2",
     "security_warnings": 0,
-    "start_time": "2017-04-14 20:10:25 +0000",
-    "end_time": "2017-04-14 20:10:25 +0000",
-    "duration": 0.216936914,
+    "start_time": "2017-04-14 20:38:58 +0000",
+    "end_time": "2017-04-14 20:38:58 +0000",
+    "duration": 0.139287228,
     "checks_performed": [
       "BasicAuth",
       "BasicAuthTimingAttack",
