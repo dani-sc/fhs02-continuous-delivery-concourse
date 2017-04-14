@@ -10,7 +10,7 @@ Stop container: `sudo docker stop d_01-rails-a`
 
 Remove container: `sudo docker rm d_01-rails-a`
 
-Pull container from dockerhub: 
+Pull image from dockerhub: `docker pull danisc/fhs02-t01-blog`
 
 Run integration tests manually: `sudo docker run --name my-test-1 danisc/fhs02-t01-blog bundle exec rspec`
 
