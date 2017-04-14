@@ -1,5 +1,7 @@
 FROM ruby:2.4.1
+RUN add-apt-repository ppa:git-core/ppa -y
 RUN apt-get update -qq && apt-get install -y build-essential libpq-dev nodejs
+RUN apt-get install git -y
 
 # Make /blog the main working directory
 RUN mkdir /blog
